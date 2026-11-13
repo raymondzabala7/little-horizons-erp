@@ -1,0 +1,4 @@
+# Copy this file to config.properties and set your real credentials
+db.url=jdbc:mysql://localhost:3306/erp_little_horizons?useSSL=false&serverTimezone=America/Bogota&allowPublicKeyRetrieval=true
+db.user=your_mysql_user
+db.password=your_mysql_password
