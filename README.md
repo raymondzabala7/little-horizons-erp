@@ -65,13 +65,13 @@ Excepciones propias (\`BusinessRuleException\`, \`DataAccessException\`, \`Input
 ![Clubes con cupos](capturas/3ad94c0b-9d39-44d0-be6d-fe803b4ba11f.png)
 
 ### 2. Estudiantes (Listado general)
-![Listado de Estudiantes](capturas/9a08ae28-07d4-46cb-b622-ee28503b1d22.png)
+![Listado de Estudiantes](capturas/9a08ae28-07d4-46cb-b622-ee28503b1d09.png)
 
 ### 3. Académico (Promedios por materia, periodo y curso)
 ![Promedios Académicos](capturas/95c6c5cc-a3d4-4106-bdd0-ec002d9e6c57.png)
 
 ### 4. Financiero (Confirmar pago y generación de factura)
-![Confirmación de Pago](capturas/347eec59-0dba-4f61-8ad9-6bb8f27c3c69.png)
+![Confirmación de Pago](capturas/347eec59-0dba-4f61-8ad9-6bb8f27c3c69.jpg)
 
 ### 5. Factura Electrónica (Visualización del archivo .txt con CUFE y QR)
 ![Factura TXT](capturas/974c3422-19b8-4a69-9395-cb96674a2392.png)
