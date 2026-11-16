@@ -4,16 +4,13 @@ import com.littlehorizons.erp.exception.DatabaseConfigException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Singleton that reads the database settings from config.properties
- * and hands out new JDBC connections.
- * Callers must close each connection (use try-with-resources).
+ * Singleton that loads config.properties once and hands out JDBC connections.
  */
 public final class DatabaseConnection {
 
@@ -24,20 +21,27 @@ public final class DatabaseConnection {
     private final String user;
     private final String password;
 
-    private DatabaseConnection() {
-        Properties properties = new Properties();
-        try (InputStream input = new FileInputStream(CONFIG_FILE)) {
-            properties.load(input);
+    private DatabaseConnection() throws DatabaseConfigException {
+        Properties props = new Properties();
+        try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
+            props.load(in);
         } catch (IOException e) {
-            throw new DatabaseConfigException("Could not read " + CONFIG_FILE
-                    + ". Copy config.properties.example to config.properties and set your credentials.", e);
+            throw new DatabaseConfigException("Cannot read " + CONFIG_FILE + " in the project root", e);
         }
-        this.url = require(properties, "db.url");
-        this.user = require(properties, "db.user");
-        this.password = require(properties, "db.password");
+        this.url = required(props, "db.url");
+        this.user = required(props, "db.user");
+        this.password = props.getProperty("db.password", "");
     }
 
-    public static synchronized DatabaseConnection getInstance() {
+    private static String required(Properties props, String key) throws DatabaseConfigException {
+        String value = props.getProperty(key);
+        if (value == null || value.isBlank()) {
+            throw new DatabaseConfigException("Missing property '" + key + "' in " + CONFIG_FILE);
+        }
+        return value.trim();
+    }
+
+    public static synchronized DatabaseConnection getInstance() throws DatabaseConfigException {
         if (instance == null) {
             instance = new DatabaseConnection();
         }
@@ -48,11 +52,8 @@ public final class DatabaseConnection {
         return DriverManager.getConnection(url, user, password);
     }
 
-    private static String require(Properties properties, String key) {
-        String value = properties.getProperty(key);
-        if (value == null || value.isBlank()) {
-            throw new DatabaseConfigException("Missing property '" + key + "' in " + CONFIG_FILE);
-        }
-        return value.trim();
+    /** Convenience used by Main and DAOs. */
+    public static Connection open() throws SQLException, DatabaseConfigException {
+        return getInstance().getConnection();
     }
 }

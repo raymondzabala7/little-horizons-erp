@@ -1,7 +1,6 @@
-﻿package com.littlehorizons.erp.exception;
+package com.littlehorizons.erp.exception;
 
-public class InputCancelledException extends Exception {
-    public InputCancelledException(String message) {
-        super(message);
-    }
+/** Thrown when the user types the cancel keyword while a prompt is waiting for input. */
+public class InputCancelledException extends RuntimeException {
+    public InputCancelledException() { super("Input cancelled by the user"); }
 }
