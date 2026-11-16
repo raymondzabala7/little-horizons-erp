@@ -62,39 +62,22 @@ Excepciones propias (`BusinessRuleException`, `DataAccessException`, `InputCance
 ## Capturas de Pantalla
 
 ### 1. Extracurriculares (Clubes con cupos)
-![Clubes con cupos](capturas/1_extracurriculares_clubes.png)[cite: 18]
+![Clubes con cupos](capturas/3ad94c0b-9d39-44d0-be6d-fe803b4ba11f.png)
 
 ### 2. Estudiantes (Listado general)
-![Listado de Estudiantes](capturas/2_estudiantes_listado.png)[cite: 19]
+![Listado de Estudiantes](capturas/9a08ae28-07d4-46cb-b622-ee28503b1d22.png)
 
 ### 3. Académico (Promedios por materia, periodo y curso)
-![Promedios Académicos](capturas/3_academico_promedios.png)[cite: 20]
+![Promedios Académicos](capturas/95c6c5cc-a3d4-4106-bdd0-ec002d9e6c57.png)
 
 ### 4. Financiero (Confirmar pago y generación de factura)
-![Confirmación de Pago](capturas/4_financiero_pago.png)[cite: 21]
+![Confirmación de Pago](capturas/347eec59-0dba-4f61-8ad9-6bb8f27c3c69.png)
 
 ### 5. Factura Electrónica (Visualización del archivo .txt con CUFE y QR)
-![Factura TXT](capturas/5_factura_txt.png)[cite: 22]
+![Factura TXT](capturas/974c3422-19b8-4a69-9395-cb96674a2392.png)
 
 ### 6. Financiero (Reporte de Morosos)
-![Reporte de Morosos](capturas/6_morosos.png)[cite: 23]
+![Reporte de Morosos](capturas/49259fe4-f6f2-4f22-a42c-8d9a3946b6e1.png)
 
 ### 7. Registro de Logs (Archivo error_log.txt)
-![Logs de Error](capturas/7_logs_error.png)[cite: 24]
-
-### 8. Recursos (Listado de préstamos abiertos y vencidos)
-![Préstamos de Recursos](capturas/8_recursos_prestamos.png)
-
----
-
-## Problemas Conocidos y Limitaciones
-Las facturas se generan en `.txt` (acordado), no en PDF. Los valores fiscales son simulados[cite: 17].
-
-## Futuras Mejoras
-Facturas PDF, roles de usuario, pruebas unitarias, interfaz gráfica[cite: 17].
-
-## Licencia
-MIT[cite: 17]
-
-## Contacto
-Repositorio: [https://github.com/raymondzabala7/little-horizons-erp](https://github.com/raymondzabala7/little-horizons-erp)[cite: 17]
+![Logs de Error](capturas/d5a31215-c5b8-474c-9150-161ab
