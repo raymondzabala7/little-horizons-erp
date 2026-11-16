@@ -1,3 +1,4 @@
+USE erp_little_horizons;
 -- =====================================================================
 -- Little Horizons ERP - database.sql
 -- Section 1: DDL (MySQL 8.0+). Section 2: DML (test data).
@@ -1620,4 +1621,3 @@ INSERT INTO prestamos_profesor (id_recurso, id_profesor, fecha_prestamo, fecha_d
 UPDATE recursos SET estado = 'Prestado' WHERE id_recurso IN (6, 7, 8, 9, 10, 11, 12, 32, 33);
 UPDATE recursos SET estado = 'En Mantenimiento' WHERE codigo IN ('LAB-005','TEC-006');
 UPDATE recursos SET estado = 'Dado de Baja' WHERE codigo = 'LIB-015';
-
