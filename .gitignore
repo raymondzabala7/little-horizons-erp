@@ -1,14 +1,7 @@
-# IntelliJ IDEA
+config.properties
+out/
+*.class
+logs/*.txt
+invoices/*.txt
 .idea/
 *.iml
-out/
-
-# Credentials (NEVER commit real passwords)
-config.properties
-
-# Logs
-logs/*.txt
-
-# OS files
-.DS_Store
-Thumbs.db
