@@ -1,53 +1,26 @@
-﻿package com.littlehorizons.erp.dao;
+package com.littlehorizons.erp.dao;
 
 import com.littlehorizons.erp.model.Payment;
-import com.littlehorizons.erp.config.DatabaseConnection;
-import com.littlehorizons.erp.util.AppLogger;
+import com.littlehorizons.erp.model.PaymentConcept;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-public class PaymentDAO {
-    public boolean insert(Payment payment) {
-        String sql = "INSERT INTO pagos (estudiante_id, concepto, monto, fecha_pago, metodo_pago, recibo) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, payment.getStudentId());
-            stmt.setString(2, payment.getPaymentConcept());
-            stmt.setDouble(3, payment.getAmount());
-            stmt.setDate(4, Date.valueOf(payment.getPaymentDate()));
-            stmt.setString(5, payment.getPaymentMethod());
-            stmt.setString(6, payment.getReceiptNumber());
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            AppLogger.error("Error inserting payment", e);
-            return false;
-        }
-    }
-
-    public List<Payment> findAll() {
-        List<Payment> payments = new ArrayList<>();
-        String sql = "SELECT * FROM pagos";
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                Payment p = new Payment(
-                    rs.getInt("id"),
-                    rs.getInt("estudiante_id"),
-                    rs.getString("concepto"),
-                    rs.getDouble("monto"),
-                    rs.getDate("fecha_pago").toLocalDate(),
-                    rs.getString("metodo_pago"),
-                    rs.getString("recibo")
-                );
-                payments.add(p);
-            }
-        } catch (SQLException e) {
-            AppLogger.error("Error finding payments", e);
-        }
-        return payments;
-    }
+public interface PaymentDao {
+    List<PaymentConcept> findConcepts();
+    Optional<PaymentConcept> findConceptById(int id);
+    int insertConcept(String name, BigDecimal baseValue, boolean taxable);
+    Optional<BigDecimal> findCustomValue(int studentId, int conceptId);
+    void saveCustomValue(int studentId, int conceptId, BigDecimal value, String reason);
+    int insertCharge(int studentId, int conceptId, BigDecimal amount, LocalDate dueDate);
+    Optional<Payment> findById(int id);
+    List<Payment> findByStudent(int studentId);
+    List<Payment> findByGuardian(int guardianId);
+    List<Payment> findAll();
+    List<Payment> findPending();
+    List<Payment> findPaidWithoutInvoice();
+    String nextReceiptNumber();
+    int markPaid(int paymentId, LocalDate paymentDate, String method, String receiptNumber);
 }
