@@ -1,10 +1,14 @@
 package com.littlehorizons.erp.controller;
 
 import com.littlehorizons.erp.model.Catalog;
+import com.littlehorizons.erp.service.AcademicReportService;
 import com.littlehorizons.erp.service.AcademicService;
 import com.littlehorizons.erp.util.InputValidator;
+import com.littlehorizons.erp.util.ReportFileWriter;
+import com.littlehorizons.erp.view.AcademicReportView;
 import com.littlehorizons.erp.view.AcademicView;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.OptionalDouble;
@@ -13,10 +17,13 @@ import java.util.TreeMap;
 public class AcademicController extends BaseController {
 
     private final AcademicService service;
+    private final AcademicReportService reportService;
     private final AcademicView view = new AcademicView();
+    private final AcademicReportView reportView = new AcademicReportView();
 
-    public AcademicController(AcademicService service) {
+    public AcademicController(AcademicService service, AcademicReportService reportService) {
         this.service = service;
+        this.reportService = reportService;
     }
 
     public void run() {
@@ -79,7 +86,19 @@ public class AcademicController extends BaseController {
             }
             case 9 -> view.showAttendance(service.attendanceOf(id("ID del estudiante: ")));
             case 10 -> view.showAbsences(service.frequentAbsences(InputValidator.readDate("Fecha del lunes de la semana")));
+            case 11 -> generatePerformanceReport();
             default -> view.error("Opcion no valida.");
+        }
+    }
+
+    /** Builds the report, shows it and saves it as a .txt file (the empty case is saved too). */
+    private void generatePerformanceReport() {
+        var report = reportService.buildReport();
+        String text = reportView.render(report, LocalDate.now().getYear());
+        try {
+            reportView.show(text, ReportFileWriter.write("reporte_rendimiento_academico", text).toString());
+        } catch (IOException e) {
+            throw new com.littlehorizons.erp.exception.DataAccessException("No se pudo guardar el reporte", e);
         }
     }
 
