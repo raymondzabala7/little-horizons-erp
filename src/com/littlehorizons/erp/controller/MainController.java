@@ -1,5 +1,6 @@
 package com.littlehorizons.erp.controller;
 
+import com.littlehorizons.erp.dao.AcademicGradeDaoImpl;
 import com.littlehorizons.erp.dao.AcademicRecordDao;
 import com.littlehorizons.erp.dao.AcademicRecordDaoImpl;
 import com.littlehorizons.erp.dao.AttendanceDao;
@@ -25,6 +26,7 @@ import com.littlehorizons.erp.dao.SubjectDaoImpl;
 import com.littlehorizons.erp.dao.TeacherDao;
 import com.littlehorizons.erp.dao.TeacherDaoImpl;
 import com.littlehorizons.erp.exception.InputCancelledException;
+import com.littlehorizons.erp.service.AcademicReportService;
 import com.littlehorizons.erp.service.AcademicService;
 import com.littlehorizons.erp.service.ExtracurricularService;
 import com.littlehorizons.erp.service.FinanceService;
@@ -71,7 +73,7 @@ public class MainController {
         ReportService reportService = new ReportService(studentDao, academicService, financeService, clubDao, eventDao, resourceDao);
 
         this.students = new StudentController(studentService);
-        this.academic = new AcademicController(academicService);
+        this.academic = new AcademicController(academicService, new AcademicReportService(new AcademicGradeDaoImpl()));
         this.teachers = new TeacherController(teacherService, academicService);
         this.extracurricular = new ExtracurricularController(extracurricularService);
         this.finance = new FinanceController(financeService);

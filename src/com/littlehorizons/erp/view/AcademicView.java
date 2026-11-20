@@ -15,7 +15,7 @@ public class AcademicView extends ConsoleView {
         return menu("GESTION ACADEMICA", "Listar materias", "Crear materia", "Inscribir estudiante en una materia",
                 "Inscribir estudiante en todas las materias de su grado", "Registrar nota", "Historial academico de un estudiante",
                 "Promedios (materia, periodo, curso)", "Registrar asistencia", "Ver asistencia de un estudiante",
-                "Reporte de inasistencias (semana)");
+                "Reporte de inasistencias (semana)", "Generar Reporte de Rendimiento Academico por Materia");
     }
 
     public void showSubjects(List<Subject> subjects) {
