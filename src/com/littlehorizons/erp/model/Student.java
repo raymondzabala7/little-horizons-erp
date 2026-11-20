@@ -2,11 +2,10 @@ package com.littlehorizons.erp.model;
 
 import java.time.LocalDate;
 
-public record Student(int id, String fullName, String documentId, LocalDate birthDate, String address,
-                      String emergencyContact, int guardianId, int grade, int enrollmentYear, String status) {
-
-    /** Human readable grade: 0 is Preescolar. */
+/** grade is the numeric level (0 = Preescolar) of the latest enrollment, or -1 when there is none. */
+public record Student(int id, String fullName, String documentType, String documentId, LocalDate birthDate,
+                      String address, String status, int grade, int enrollmentYear) {
     public String gradeLabel() {
-        return grade == 0 ? "Preescolar" : grade + "°";
+        return grade < 0 ? "Sin matricula" : grade == 0 ? "Preescolar" : grade + "°";
     }
 }

@@ -39,27 +39,32 @@ public class AcademicController extends BaseController {
         switch (option) {
             case 1 -> view.showSubjects(service.listSubjects());
             case 2 -> {
-                String name = InputValidator.readText("Nombre de la materia: ", 80);
+                String code = InputValidator.readText("Codigo de la materia (ej. MAT-05): ", 20);
+                String name = InputValidator.readText("Nombre de la materia: ", 100);
                 int grade = InputValidator.readInt("Grado (0 = Preescolar, 1 a 11): ", 0, 11);
-                view.success("Materia creada con ID " + service.createSubject(name, grade));
+                view.success("Materia creada con ID " + service.createSubject(code, name, grade));
             }
             case 3 -> {
                 int studentId = id("ID del estudiante: ");
                 int subjectId = id("ID de la materia: ");
-                service.enroll(studentId, subjectId, year());
+                int year = year();
+                service.enroll(studentId, subjectId, year, InputValidator.readChoice("Periodo: ", Catalog.ENROLLMENT_PERIODS));
                 view.success("Estudiante inscrito en la materia.");
             }
             case 4 -> {
-                int added = service.enrollAllOfGrade(id("ID del estudiante: "), year());
-                view.success("Inscripciones nuevas: " + added);
+                int studentId = id("ID del estudiante: ");
+                int year = year();
+                String period = InputValidator.readChoice("Periodo: ", Catalog.ENROLLMENT_PERIODS);
+                view.success("Inscripciones nuevas: " + service.enrollAllOfGrade(studentId, year, period));
             }
             case 5 -> {
                 int studentId = id("ID del estudiante: ");
                 int subjectId = id("ID de la materia: ");
+                int teacherId = id("ID del profesor que registra la nota: ");
                 String period = InputValidator.readChoice("Periodo: ", Catalog.PERIODS);
                 int year = year();
                 BigDecimal grade = InputValidator.readDecimal("Nota (0.0 a 5.0): ", BigDecimal.ZERO, new BigDecimal("5.0"), 1);
-                service.recordGrade(studentId, subjectId, period, year, grade);
+                service.recordGrade(studentId, subjectId, teacherId, period, year, grade);
                 view.success("Nota registrada.");
             }
             case 6 -> view.showHistory(service.history(id("ID del estudiante: ")));

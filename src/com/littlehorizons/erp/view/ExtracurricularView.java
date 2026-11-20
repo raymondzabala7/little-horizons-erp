@@ -17,7 +17,8 @@ public class ExtracurricularView extends ConsoleView {
 
     public void showClubs(List<Club> clubs) {
         table(List.of("ID", "Club", "Profesor", "Cupo", "Activos", "Libres"),
-                clubs.stream().map(c -> row(c.id(), c.name(), c.teacherName(), c.maxCapacity(), c.activeMembers(), c.availableSpots())).toList());
+                clubs.stream().map(c -> row(c.id(), c.name(), c.teacherName(), c.maxCapacity() == 0 ? "sin limite" : c.maxCapacity(),
+                        c.activeMembers(), c.maxCapacity() == 0 ? "-" : c.availableSpots())).toList());
     }
 
     public void showMembers(List<ClubMembership> list) {
@@ -26,12 +27,12 @@ public class ExtracurricularView extends ConsoleView {
     }
 
     public void showEvents(List<SchoolEvent> events) {
-        table(List.of("ID", "Evento", "Fecha", "Tipo", "Competencia"),
-                events.stream().map(e -> row(e.id(), e.name(), e.date(), e.type(), e.competitive() ? "Si" : "No")).toList());
+        table(List.of("ID", "Evento", "Fecha", "Tipo", "Lugar", "Competencia"),
+                events.stream().map(e -> row(e.id(), e.name(), e.date(), e.type(), e.place(), e.competitive() ? "Si" : "No")).toList());
     }
 
     public void showParticipants(List<EventParticipation> list) {
-        table(List.of("Evento", "Estudiante", "Posicion"),
+        table(List.of("Evento", "Estudiante", "Posicion / rol"),
                 list.stream().map(p -> row(p.eventName(), p.studentName(), p.placement())).toList());
     }
 }

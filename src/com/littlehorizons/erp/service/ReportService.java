@@ -2,10 +2,10 @@ package com.littlehorizons.erp.service;
 
 import com.littlehorizons.erp.dao.ClubDao;
 import com.littlehorizons.erp.dao.EventDao;
-import com.littlehorizons.erp.dao.PaymentDao;
 import com.littlehorizons.erp.dao.ResourceDao;
 import com.littlehorizons.erp.dao.StudentDao;
 import com.littlehorizons.erp.model.Club;
+import com.littlehorizons.erp.model.Delinquent;
 import com.littlehorizons.erp.model.EventParticipation;
 import com.littlehorizons.erp.model.Payment;
 import com.littlehorizons.erp.model.Resource;
@@ -25,25 +25,25 @@ public class ReportService {
 
     private final StudentDao studentDao;
     private final AcademicService academicService;
+    private final FinanceService financeService;
     private final ClubDao clubDao;
     private final EventDao eventDao;
-    private final PaymentDao paymentDao;
     private final ResourceDao resourceDao;
 
-    public ReportService(StudentDao studentDao, AcademicService academicService, ClubDao clubDao,
-                         EventDao eventDao, PaymentDao paymentDao, ResourceDao resourceDao) {
+    public ReportService(StudentDao studentDao, AcademicService academicService, FinanceService financeService,
+                         ClubDao clubDao, EventDao eventDao, ResourceDao resourceDao) {
         this.studentDao = studentDao;
         this.academicService = academicService;
+        this.financeService = financeService;
         this.clubDao = clubDao;
         this.eventDao = eventDao;
-        this.paymentDao = paymentDao;
         this.resourceDao = resourceDao;
     }
 
     public Map<String, Long> activeStudentsPerGrade() {
         return studentDao.findAll().stream()
                 .filter(s -> "Activo".equals(s.status()))
-                .collect(Collectors.groupingBy(Student::gradeLabel, TreeMap::new, Collectors.counting()));
+                .collect(Collectors.groupingBy(s -> String.format("%02d - %s", Math.max(s.grade(), -1), s.gradeLabel()), TreeMap::new, Collectors.counting()));
     }
 
     private List<StudentAverage> averagesOfYear(int year) {
@@ -83,21 +83,20 @@ public class ReportService {
     }
 
     public Map<String, BigDecimal> collectedPerMethod() {
-        return paymentDao.findAll().stream()
-                .filter(Payment::isPaid)
+        return financeService.allPayments().stream()
                 .collect(Collectors.groupingBy(Payment::method, TreeMap::new,
                         Collectors.reducing(BigDecimal.ZERO, Payment::amount, BigDecimal::add)));
     }
 
     public Map<String, BigDecimal> collectedPerConcept() {
-        return paymentDao.findAll().stream()
-                .filter(Payment::isPaid)
+        return financeService.allPayments().stream()
                 .collect(Collectors.groupingBy(Payment::conceptName, TreeMap::new,
                         Collectors.reducing(BigDecimal.ZERO, Payment::amount, BigDecimal::add)));
     }
 
-    public BigDecimal totalPending() {
-        return paymentDao.findPending().stream().map(Payment::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+    /** Total tuition owed by delinquent students. */
+    public BigDecimal totalDelinquent() {
+        return financeService.delinquents().stream().map(Delinquent::amountDue).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Map<String, Long> resourcesPerStatus() {

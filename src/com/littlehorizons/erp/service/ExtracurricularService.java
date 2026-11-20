@@ -66,7 +66,7 @@ public class ExtracurricularService {
     }
 
     public void leaveClub(int clubId, int studentId) {
-        if (clubDao.withdrawMember(clubId, studentId) == 0) {
+        if (clubDao.withdrawMember(clubId, studentId, LocalDate.now()) == 0) {
             throw new BusinessRuleException("El estudiante no es miembro activo de este club.");
         }
     }
@@ -90,8 +90,8 @@ public class ExtracurricularService {
         return eventDao.findById(id).orElseThrow(() -> new BusinessRuleException("Evento " + id + " no encontrado."));
     }
 
-    public int createEvent(String name, LocalDate date, String description, String type, boolean competitive) {
-        return eventDao.insert(name, date, description, type, competitive);
+    public int createEvent(String name, LocalDate date, String description, String type, boolean competitive, String place) {
+        return eventDao.insert(name, date, description, type, competitive, place);
     }
 
     public void registerParticipation(int eventId, int studentId, String placement) {
@@ -102,7 +102,7 @@ public class ExtracurricularService {
         if (!event.competitive() && !"Participante".equals(placement)) {
             throw new BusinessRuleException("El evento no tiene competencia; la posicion debe ser 'Participante'.");
         }
-        eventDao.saveParticipation(eventId, studentId, placement);
+        eventDao.saveParticipation(eventId, studentId, event.competitive() ? "Competidor" : "Participante", placement);
     }
 
     public List<EventParticipation> participants(int eventId) {

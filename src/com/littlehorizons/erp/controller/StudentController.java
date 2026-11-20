@@ -25,12 +25,12 @@ public class StudentController extends BaseController {
     private void handle(int option) {
         switch (option) {
             case 1 -> view.success("Acudiente registrado con ID " + service.registerGuardian(view.promptGuardian()));
-            case 2 -> view.success("Estudiante registrado con ID " + service.registerStudent(view.promptStudent()));
+            case 2 -> view.success("Estudiante registrado y matriculado con ID " + service.registerStudent(view.promptStudent()));
             case 3 -> view.showStudents(service.listStudents());
             case 4 -> view.showStudents(service.search(InputValidator.readText("Texto a buscar: ", 60)));
             case 5 -> {
                 var student = service.getStudent(InputValidator.readInt("ID del estudiante: ", 1, Integer.MAX_VALUE));
-                view.showDetail(student, service.getGuardian(student.guardianId()));
+                view.showDetail(student, service.principalGuardianOf(student.id()));
             }
             case 6 -> {
                 int id = InputValidator.readInt("ID del estudiante: ", 1, Integer.MAX_VALUE);

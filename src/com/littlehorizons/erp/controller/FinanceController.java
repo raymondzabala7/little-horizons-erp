@@ -6,6 +6,7 @@ import com.littlehorizons.erp.util.InputValidator;
 import com.littlehorizons.erp.view.FinanceView;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class FinanceController extends BaseController {
 
@@ -30,42 +31,45 @@ public class FinanceController extends BaseController {
         return InputValidator.readInt(label, 1, Integer.MAX_VALUE);
     }
 
+    private static int year() {
+        return InputValidator.readInt("Anio academico: ", 2000, LocalDate.now().getYear() + 1);
+    }
+
     private void handle(int option) {
         switch (option) {
             case 1 -> view.showConcepts(service.listConcepts());
             case 2 -> {
-                String name = InputValidator.readText("Nombre del concepto: ", 80);
+                String code = InputValidator.readText("Codigo del concepto (ej. EXCURSION): ", 20);
+                String name = InputValidator.readText("Nombre del concepto: ", 100);
                 BigDecimal value = InputValidator.readDecimal("Valor base: ", BigDecimal.ONE, MAX_AMOUNT, 2);
-                boolean taxable = InputValidator.readYesNo("Aplica IVA 19%?");
-                view.success("Concepto creado con ID " + service.createConcept(name, value, taxable));
+                boolean recurring = InputValidator.readYesNo("Es un cobro mensual?");
+                view.success("Concepto creado con ID " + service.createConcept(code, name, value, recurring));
             }
             case 3 -> {
                 int studentId = id("ID del estudiante: ");
                 view.showConcepts(service.listConcepts());
                 int conceptId = id("ID del concepto: ");
+                int year = year();
                 BigDecimal value = InputValidator.readDecimal("Valor personalizado: ", BigDecimal.ONE, MAX_AMOUNT, 2);
-                String reason = InputValidator.readText("Motivo (descuento por hermanos, beca...): ", 100);
-                service.setCustomValue(studentId, conceptId, value, reason);
+                String reason = InputValidator.readText("Motivo (descuento por hermanos, beca...): ", 150);
+                service.setCustomValue(studentId, conceptId, year, value, reason);
                 view.success("Valor personalizado guardado.");
             }
             case 4 -> {
                 int studentId = id("ID del estudiante: ");
                 view.showConcepts(service.listConcepts());
                 int conceptId = id("ID del concepto: ");
-                var due = InputValidator.readDate("Fecha de vencimiento");
-                view.success("Cobro creado con ID de pago " + service.createCharge(studentId, conceptId, due));
-            }
-            case 5 -> {
-                int paymentId = id("ID del pago pendiente: ");
+                int year = year();
+                Integer month = service.getConcept(conceptId).recurring()
+                        ? Integer.valueOf(InputValidator.readInt("Mes que cubre el pago (1-12): ", 1, 12)) : null;
                 String method = InputValidator.readChoice("Metodo de pago: ", Catalog.PAYMENT_METHODS);
-                view.showInvoice(service.confirmPayment(paymentId, method));
+                view.showInvoice(service.registerPayment(studentId, conceptId, method, month, year));
             }
-            case 6 -> view.showPayments(service.pendingPayments());
-            case 7 -> view.showPayments(service.historyOfStudent(id("ID del estudiante: ")));
-            case 8 -> view.showPayments(service.historyOfGuardian(id("ID del acudiente: ")));
-            case 9 -> view.showPayments(service.delinquentPayments());
-            case 10 -> {
-                view.showPayments(service.paidWithoutInvoice());
+            case 5 -> view.showPayments(service.historyOfStudent(id("ID del estudiante: ")));
+            case 6 -> view.showPayments(service.historyOfGuardian(id("ID del acudiente: ")));
+            case 7 -> view.showDelinquents(service.delinquents());
+            case 8 -> {
+                view.showPayments(service.paymentsWithoutInvoice());
                 view.showInvoice(service.generateInvoice(id("ID del pago a facturar: ")));
             }
             default -> view.error("Opcion no valida.");

@@ -4,6 +4,7 @@ import com.littlehorizons.erp.dao.SubjectDao;
 import com.littlehorizons.erp.dao.TeacherDao;
 import com.littlehorizons.erp.exception.BusinessRuleException;
 import com.littlehorizons.erp.model.Teacher;
+import com.littlehorizons.erp.model.TeacherForm;
 import com.littlehorizons.erp.model.TeachingAssignment;
 
 import java.time.LocalTime;
@@ -20,11 +21,11 @@ public class TeacherService {
         this.subjectDao = subjectDao;
     }
 
-    public int register(Teacher teacher) {
-        if (teacherDao.findByDocument(teacher.documentId()).isPresent()) {
-            throw new BusinessRuleException("Ya existe un profesor con documento " + teacher.documentId() + ".");
+    public int register(TeacherForm form) {
+        if (teacherDao.findByDocument(form.documentId()).isPresent()) {
+            throw new BusinessRuleException("Ya existe un profesor con documento " + form.documentId() + ".");
         }
-        return teacherDao.insert(teacher);
+        return teacherDao.insert(form);
     }
 
     public List<Teacher> list() {
@@ -35,16 +36,19 @@ public class TeacherService {
         return teacherDao.findById(id).orElseThrow(() -> new BusinessRuleException("Profesor " + id + " no encontrado."));
     }
 
-    public int assignSubject(int teacherId, int subjectId, String day, LocalTime start, LocalTime end) {
+    /** Assigns the subject (reusing an existing assignment) and registers its weekly schedule slot. */
+    public int assignSubject(int teacherId, int subjectId, int year, String section, String day, LocalTime start, LocalTime end) {
         get(teacherId);
-        subjectDao.findById(subjectId).orElseThrow(() -> new BusinessRuleException("Materia " + subjectId + " no encontrado."));
+        subjectDao.findById(subjectId).orElseThrow(() -> new BusinessRuleException("Materia " + subjectId + " no encontrada."));
         if (!end.isAfter(start)) {
             throw new BusinessRuleException("La hora de fin debe ser posterior a la de inicio.");
         }
-        if (teacherDao.hasScheduleConflict(teacherId, day, start, end)) {
+        if (teacherDao.hasScheduleConflict(teacherId, year, day, start, end)) {
             throw new BusinessRuleException("Conflicto de horario: el profesor ya tiene una clase que se cruza el " + day + ".");
         }
-        return teacherDao.insertAssignment(teacherId, subjectId, day, start, end);
+        int assignmentId = teacherDao.findAssignmentId(teacherId, subjectId, year, section)
+                .orElseGet(() -> teacherDao.insertAssignment(teacherId, subjectId, year, section));
+        return teacherDao.insertSchedule(assignmentId, day, start, end);
     }
 
     public List<TeachingAssignment> assignments(int teacherId) {

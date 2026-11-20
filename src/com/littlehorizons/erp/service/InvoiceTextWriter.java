@@ -22,23 +22,25 @@ public class InvoiceTextWriter {
     private static final Path OUTPUT_DIR = Path.of("invoices");
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int QR_SIZE = 25;
+    private static final int WIDTH = 78;
 
     /** Simulated CUFE: SHA-384 (96 hex chars) of invoice number + NIT + issue date + total + technical key. */
-    public String computeCufe(int number, Invoice draft) {
+    public String computeCufe(String number, Invoice draft) {
         String raw = number + SchoolInfo.NIT + draft.issuedAt().format(DATE_TIME) + draft.total().toPlainString() + SchoolInfo.TECHNICAL_KEY;
         return hex("SHA-384", raw);
     }
 
     public Path write(Invoice invoice, Payment payment, Guardian customer) throws IOException {
         Files.createDirectories(OUTPUT_DIR);
-        Path file = OUTPUT_DIR.resolve(String.format("factura_%06d.txt", invoice.number()));
+        Path file = OUTPUT_DIR.resolve(String.format("factura_%06d.txt", invoice.id()));
         Files.writeString(file, render(invoice, payment, customer), StandardCharsets.UTF_8);
         return file;
     }
 
     String render(Invoice invoice, Payment payment, Guardian customer) {
-        String line = "=".repeat(78);
-        String thin = "-".repeat(78);
+        String line = "=".repeat(WIDTH);
+        String thin = "-".repeat(WIDTH);
+        String description = payment.conceptName() + (payment.month() != null ? " (mes " + payment.month() + "/" + payment.year() + ")" : "");
         StringBuilder sb = new StringBuilder();
         sb.append(line).append('\n')
           .append(center("FACTURA ELECTRONICA DE VENTA (SIMULADA)")).append('\n')
@@ -47,23 +49,23 @@ public class InvoiceTextWriter {
           .append(center(SchoolInfo.ADDRESS)).append('\n')
           .append(center("Tel. " + SchoolInfo.PHONE + "  |  " + SchoolInfo.EMAIL)).append('\n')
           .append(line).append('\n')
-          .append(String.format("Factura No.      : LH-%06d%n", invoice.number()))
+          .append(String.format("Factura No.      : %s%n", invoice.number()))
           .append(String.format("Fecha de emision : %s%n", invoice.issuedAt().format(DATE_TIME)))
           .append(String.format("Recibo de pago   : %s%n", payment.receiptNumber()))
           .append(String.format("Metodo de pago   : %s%n", payment.method()))
           .append(thin).append('\n')
           .append("CLIENTE (acudiente responsable)\n")
           .append(String.format("Nombre           : %s%n", customer.fullName()))
-          .append(String.format("Documento        : %s%n", customer.documentId()))
-          .append(String.format("Direccion        : %s%n", customer.address()))
+          .append(String.format("Documento        : %s %s%n", customer.documentType(), customer.documentId()))
+          .append(String.format("Direccion        : %s%n", customer.address() == null ? "-" : customer.address()))
           .append(String.format("Estudiante       : %s%n", payment.studentName()))
           .append(thin).append('\n')
           .append(String.format("%-34s %5s %15s %15s%n", "Descripcion", "Cant.", "Valor unit.", "Subtotal"))
           .append(thin).append('\n')
-          .append(String.format("%-34s %5d %15s %15s%n", cut(payment.conceptName(), 34), 1, money(invoice.subtotal()), money(invoice.subtotal())))
+          .append(String.format("%-34s %5d %15s %15s%n", cut(description, 34), 1, money(invoice.subtotal()), money(invoice.subtotal())))
           .append(thin).append('\n')
           .append(String.format("%58s %15s%n", "Subtotal:", money(invoice.subtotal())))
-          .append(String.format("%58s %15s%n", "IVA (19%):", money(invoice.tax())))
+          .append(String.format("%58s %15s%n", "IVA:", money(invoice.tax())))
           .append(String.format("%58s %15s%n", "TOTAL:", money(invoice.total())))
           .append(line).append('\n')
           .append("CUFE (simulado):\n")
@@ -74,7 +76,7 @@ public class InvoiceTextWriter {
           .append(thin).append('\n')
           .append("CODIGO QR (simulado):\n")
           .append(qr(invoice)).append('\n')
-          .append("Datos del QR: NumFac=LH-").append(String.format("%06d", invoice.number()))
+          .append("Datos del QR: NumFac=").append(invoice.number())
           .append(" NitFac=").append(SchoolInfo.NIT).append(" ValTotal=").append(invoice.total().toPlainString()).append('\n')
           .append(line).append('\n')
           .append(center("Documento generado por el ERP Little Horizons con fines academicos.")).append('\n');
@@ -122,7 +124,7 @@ public class InvoiceTextWriter {
     }
 
     private static String center(String text) {
-        int pad = Math.max(0, (78 - text.length()) / 2);
+        int pad = Math.max(0, (WIDTH - text.length()) / 2);
         return " ".repeat(pad) + text;
     }
 

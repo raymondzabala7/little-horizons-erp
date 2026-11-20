@@ -37,7 +37,7 @@ public class ReportController extends BaseController {
             case 6 -> {
                 view.showMoney("Metodo de pago", service.collectedPerMethod());
                 view.showMoney("Concepto", service.collectedPerConcept());
-                view.showTotal("Cartera pendiente total", service.totalPending());
+                view.showTotal("Cartera en mora (pensiones)", service.totalDelinquent());
             }
             case 7 -> view.showCounts("Estado", service.resourcesPerStatus());
             default -> view.error("Opcion no valida.");

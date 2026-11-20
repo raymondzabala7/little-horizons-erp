@@ -7,6 +7,8 @@ import com.littlehorizons.erp.util.InputValidator;
 import com.littlehorizons.erp.view.AcademicView;
 import com.littlehorizons.erp.view.TeacherView;
 
+import java.time.LocalDate;
+
 public class TeacherController extends BaseController {
 
     private final TeacherService service;
@@ -35,11 +37,13 @@ public class TeacherController extends BaseController {
                 int teacherId = InputValidator.readInt("ID del profesor: ", 1, Integer.MAX_VALUE);
                 academicView.showSubjects(academicService.listSubjects());
                 int subjectId = InputValidator.readInt("ID de la materia: ", 1, Integer.MAX_VALUE);
+                int year = InputValidator.readInt("Anio academico: ", 2000, LocalDate.now().getYear() + 1);
+                String section = InputValidator.readOptionalText("Seccion (ENTER si no aplica): ", 10);
                 String day = InputValidator.readChoice("Dia: ", Catalog.WEEK_DAYS);
                 var start = InputValidator.readTime("Hora de inicio");
                 var end = InputValidator.readTime("Hora de fin");
-                service.assignSubject(teacherId, subjectId, day, start, end);
-                view.success("Materia asignada.");
+                service.assignSubject(teacherId, subjectId, year, section, day, start, end);
+                view.success("Materia y horario asignados.");
             }
             case 4 -> view.showAssignments(service.assignments(InputValidator.readInt("ID del profesor: ", 1, Integer.MAX_VALUE)));
             default -> view.error("Opcion no valida.");

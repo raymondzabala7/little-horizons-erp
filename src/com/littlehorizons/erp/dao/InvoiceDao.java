@@ -2,12 +2,13 @@ package com.littlehorizons.erp.dao;
 
 import com.littlehorizons.erp.model.Invoice;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface InvoiceDao {
-    /** Inserts the invoice and returns its consecutive number. */
-    int insert(Invoice invoice);
+    /** Reserves the consecutive number by inserting a provisional row; returns its id. */
+    int insertDraft(int paymentId, String provisionalNumber, LocalDate issueDate);
+    /** Stores the final invoice number, CUFE and file location. */
+    void complete(Invoice invoice, String fileName);
     Optional<Invoice> findByPayment(int paymentId);
-    /** Stores the final CUFE and file path once the invoice number is known. */
-    void update(Invoice invoice);
 }

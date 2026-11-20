@@ -5,3 +5,4 @@ logs/*.txt
 invoices/*.txt
 .idea/
 *.iml
+reports/*.txt

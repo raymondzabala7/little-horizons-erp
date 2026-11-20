@@ -9,6 +9,7 @@ public interface ResourceDao {
     List<Resource> findAll();
     Optional<Resource> findById(int id);
     Optional<Resource> findByCode(String code);
-    int insert(String code, String name, String category, String location);
+    List<String> findCategories();
+    int insert(String code, String name, String categoryName, String location);
     int updateStatus(int resourceId, String status);
 }

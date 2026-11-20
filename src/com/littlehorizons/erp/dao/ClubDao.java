@@ -12,8 +12,9 @@ public interface ClubDao {
     Optional<Club> findById(int id);
     int insert(String name, String description, int maxCapacity, int teacherId);
     boolean isActiveMember(int clubId, int studentId);
+    /** Creates the membership, or reactivates a previous one. */
     void addMember(int clubId, int studentId, LocalDate joinDate);
-    int withdrawMember(int clubId, int studentId);
+    int withdrawMember(int clubId, int studentId, LocalDate date);
     List<ClubMembership> findMembers(int clubId);
     List<ClubMembership> findMembershipsByStudent(int studentId);
 }

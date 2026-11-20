@@ -34,14 +34,14 @@ public class ResourceController extends BaseController {
             case 1 -> view.showResources(service.listResources());
             case 2 -> view.showResources(service.availableResources());
             case 3 -> {
-                String code = InputValidator.readText("Codigo unico (ej. LIB-050): ", 20);
-                String name = InputValidator.readText("Nombre: ", 100);
-                String category = InputValidator.readChoice("Categoria: ", Catalog.RESOURCE_CATEGORIES);
-                String location = InputValidator.readText("Ubicacion fisica: ", 80);
+                String code = InputValidator.readText("Codigo unico (ej. LIB-050): ", 50);
+                String name = InputValidator.readText("Nombre: ", 150);
+                String category = InputValidator.readChoice("Categoria: ", service.categories());
+                String location = InputValidator.readText("Ubicacion fisica: ", 100);
                 view.success("Recurso registrado con ID " + service.register(code, name, category, location));
             }
             case 4 -> {
-                String code = InputValidator.readText("Codigo del recurso: ", 20);
+                String code = InputValidator.readText("Codigo del recurso: ", 50);
                 String type = borrowerType();
                 int borrowerId = InputValidator.readInt("ID del " + type.toLowerCase() + ": ", 1, Integer.MAX_VALUE);
                 var due = InputValidator.readDate("Fecha de devolucion programada");
@@ -49,13 +49,13 @@ public class ResourceController extends BaseController {
                 view.success("Prestamo registrado.");
             }
             case 5 -> {
-                service.returnResource(InputValidator.readText("Codigo del recurso: ", 20));
+                service.returnResource(InputValidator.readText("Codigo del recurso: ", 50));
                 view.success("Devolucion registrada. El recurso vuelve a estar disponible.");
             }
             case 6 -> view.showLoans(service.openLoans());
             case 7 -> view.showLoans(service.overdueLoans());
             case 8 -> {
-                String code = InputValidator.readText("Codigo del recurso: ", 20);
+                String code = InputValidator.readText("Codigo del recurso: ", 50);
                 String status = InputValidator.readChoice("Nuevo estado: ", List.of("Disponible", "En Mantenimiento", "Dado de Baja"));
                 service.changeStatus(code, status);
                 view.success("Estado actualizado.");

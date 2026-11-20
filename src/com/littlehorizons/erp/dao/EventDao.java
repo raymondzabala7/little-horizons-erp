@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface EventDao {
     List<SchoolEvent> findAll();
     Optional<SchoolEvent> findById(int id);
-    int insert(String name, LocalDate date, String description, String type, boolean competitive);
-    void saveParticipation(int eventId, int studentId, String placement);
+    int insert(String name, LocalDate date, String description, String type, boolean competitive, String place);
+    void saveParticipation(int eventId, int studentId, String role, String placement);
     List<EventParticipation> findParticipants(int eventId);
     List<EventParticipation> findAllParticipations();
 }

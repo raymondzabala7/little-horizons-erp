@@ -12,7 +12,7 @@ public class ReportView extends ConsoleView {
     public int menu() {
         return menu("REPORTES Y ESTADISTICAS", "Estudiantes activos por grado", "Mejores promedios del anio",
                 "Estudiantes que necesitan apoyo (promedio < 3.0)", "Participacion por evento", "Ocupacion de clubes",
-                "Recaudo por metodo y por concepto (y cartera pendiente)", "Recursos por estado");
+                "Recaudo por metodo y por concepto, y cartera en mora", "Recursos por estado");
     }
 
     public void showCounts(String keyHeader, Map<String, Long> counts) {
@@ -26,7 +26,8 @@ public class ReportView extends ConsoleView {
 
     public void showClubs(List<Club> clubs) {
         table(List.of("Club", "Activos", "Cupo", "Ocupacion"), clubs.stream()
-                .map(c -> row(c.name(), c.activeMembers(), c.maxCapacity(), String.format("%.0f%%", 100.0 * c.activeMembers() / c.maxCapacity()))).toList());
+                .map(c -> row(c.name(), c.activeMembers(), c.maxCapacity() == 0 ? "sin limite" : c.maxCapacity(),
+                        c.maxCapacity() == 0 ? "-" : String.format("%.0f%%", 100.0 * c.activeMembers() / c.maxCapacity()))).toList());
     }
 
     public void showMoney(String keyHeader, Map<String, BigDecimal> amounts) {

@@ -1,29 +1,29 @@
 package com.littlehorizons.erp.controller;
 
-import com.littlehorizons.erp.dao.AcademicRecordDaoImpl;
-import com.littlehorizons.erp.dao.AttendanceDaoImpl;
-import com.littlehorizons.erp.dao.ClubDaoImpl;
-import com.littlehorizons.erp.dao.EventDaoImpl;
-import com.littlehorizons.erp.dao.GuardianDaoImpl;
-import com.littlehorizons.erp.dao.InvoiceDaoImpl;
-import com.littlehorizons.erp.dao.LoanDaoImpl;
-import com.littlehorizons.erp.dao.PaymentDaoImpl;
-import com.littlehorizons.erp.dao.ResourceDaoImpl;
-import com.littlehorizons.erp.dao.StudentDaoImpl;
-import com.littlehorizons.erp.dao.SubjectDaoImpl;
-import com.littlehorizons.erp.dao.TeacherDaoImpl;
 import com.littlehorizons.erp.dao.AcademicRecordDao;
+import com.littlehorizons.erp.dao.AcademicRecordDaoImpl;
 import com.littlehorizons.erp.dao.AttendanceDao;
+import com.littlehorizons.erp.dao.AttendanceDaoImpl;
 import com.littlehorizons.erp.dao.ClubDao;
+import com.littlehorizons.erp.dao.ClubDaoImpl;
 import com.littlehorizons.erp.dao.EventDao;
+import com.littlehorizons.erp.dao.EventDaoImpl;
 import com.littlehorizons.erp.dao.GuardianDao;
+import com.littlehorizons.erp.dao.GuardianDaoImpl;
 import com.littlehorizons.erp.dao.InvoiceDao;
+import com.littlehorizons.erp.dao.InvoiceDaoImpl;
 import com.littlehorizons.erp.dao.LoanDao;
+import com.littlehorizons.erp.dao.LoanDaoImpl;
 import com.littlehorizons.erp.dao.PaymentDao;
+import com.littlehorizons.erp.dao.PaymentDaoImpl;
 import com.littlehorizons.erp.dao.ResourceDao;
+import com.littlehorizons.erp.dao.ResourceDaoImpl;
 import com.littlehorizons.erp.dao.StudentDao;
+import com.littlehorizons.erp.dao.StudentDaoImpl;
 import com.littlehorizons.erp.dao.SubjectDao;
+import com.littlehorizons.erp.dao.SubjectDaoImpl;
 import com.littlehorizons.erp.dao.TeacherDao;
+import com.littlehorizons.erp.dao.TeacherDaoImpl;
 import com.littlehorizons.erp.exception.InputCancelledException;
 import com.littlehorizons.erp.service.AcademicService;
 import com.littlehorizons.erp.service.ExtracurricularService;
@@ -36,7 +36,7 @@ import com.littlehorizons.erp.service.TeacherService;
 import com.littlehorizons.erp.util.InputValidator;
 import com.littlehorizons.erp.view.ConsoleView;
 
-/** Composition root: wires DAOs, services and controllers (dependency injection by constructor) and runs the main menu. */
+/** Composition root: wires DAOs, services and controllers (constructor injection) and runs the main menu. */
 public class MainController {
 
     private final ConsoleView console = new ConsoleView();
@@ -63,12 +63,12 @@ public class MainController {
         LoanDao loanDao = new LoanDaoImpl();
 
         StudentService studentService = new StudentService(studentDao, guardianDao);
-        AcademicService academicService = new AcademicService(subjectDao, studentDao, recordDao, attendanceDao);
+        AcademicService academicService = new AcademicService(subjectDao, studentDao, teacherDao, recordDao, attendanceDao);
         TeacherService teacherService = new TeacherService(teacherDao, subjectDao);
         ExtracurricularService extracurricularService = new ExtracurricularService(clubDao, eventDao, studentDao, teacherDao);
         FinanceService financeService = new FinanceService(paymentDao, invoiceDao, studentDao, guardianDao, new InvoiceTextWriter());
         ResourceService resourceService = new ResourceService(resourceDao, loanDao, studentDao, teacherDao);
-        ReportService reportService = new ReportService(studentDao, academicService, clubDao, eventDao, paymentDao, resourceDao);
+        ReportService reportService = new ReportService(studentDao, academicService, financeService, clubDao, eventDao, resourceDao);
 
         this.students = new StudentController(studentService);
         this.academic = new AcademicController(academicService);

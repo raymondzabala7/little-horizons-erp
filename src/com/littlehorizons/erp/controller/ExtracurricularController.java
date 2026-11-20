@@ -30,8 +30,8 @@ public class ExtracurricularController extends BaseController {
         switch (option) {
             case 1 -> view.showClubs(service.listClubs());
             case 2 -> {
-                String name = InputValidator.readText("Nombre del club: ", 80);
-                String description = InputValidator.readText("Descripcion: ", 255);
+                String name = InputValidator.readText("Nombre del club: ", 100);
+                String description = InputValidator.readText("Descripcion: ", 500);
                 int capacity = InputValidator.readInt("Cupo maximo: ", 1, 500);
                 int teacherId = id("ID del profesor encargado: ");
                 view.success("Club creado con ID " + service.createClub(name, description, capacity, teacherId));
@@ -50,12 +50,13 @@ public class ExtracurricularController extends BaseController {
             case 6 -> view.showMembers(service.membershipsOf(id("ID del estudiante: ")));
             case 7 -> view.showEvents(service.listEvents());
             case 8 -> {
-                String name = InputValidator.readText("Nombre del evento: ", 100);
+                String name = InputValidator.readText("Nombre del evento: ", 150);
                 var date = InputValidator.readDate("Fecha del evento");
-                String description = InputValidator.readOptionalText("Descripcion (opcional): ", 255);
+                String description = InputValidator.readOptionalText("Descripcion (opcional): ", 500);
                 String type = InputValidator.readChoice("Tipo: ", Catalog.EVENT_TYPES);
+                String place = InputValidator.readOptionalText("Lugar (opcional): ", 150);
                 boolean competitive = InputValidator.readYesNo("El evento tiene competencia?");
-                view.success("Evento creado con ID " + service.createEvent(name, date, description, type, competitive));
+                view.success("Evento creado con ID " + service.createEvent(name, date, description, type, competitive, place));
             }
             case 9 -> {
                 int eventId = id("ID del evento: ");

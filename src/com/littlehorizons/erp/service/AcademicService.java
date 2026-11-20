@@ -4,6 +4,7 @@ import com.littlehorizons.erp.dao.AcademicRecordDao;
 import com.littlehorizons.erp.dao.AttendanceDao;
 import com.littlehorizons.erp.dao.StudentDao;
 import com.littlehorizons.erp.dao.SubjectDao;
+import com.littlehorizons.erp.dao.TeacherDao;
 import com.littlehorizons.erp.exception.BusinessRuleException;
 import com.littlehorizons.erp.model.AbsenceSummary;
 import com.littlehorizons.erp.model.AcademicRecord;
@@ -30,12 +31,15 @@ public class AcademicService {
 
     private final SubjectDao subjectDao;
     private final StudentDao studentDao;
+    private final TeacherDao teacherDao;
     private final AcademicRecordDao recordDao;
     private final AttendanceDao attendanceDao;
 
-    public AcademicService(SubjectDao subjectDao, StudentDao studentDao, AcademicRecordDao recordDao, AttendanceDao attendanceDao) {
+    public AcademicService(SubjectDao subjectDao, StudentDao studentDao, TeacherDao teacherDao,
+                           AcademicRecordDao recordDao, AttendanceDao attendanceDao) {
         this.subjectDao = subjectDao;
         this.studentDao = studentDao;
+        this.teacherDao = teacherDao;
         this.recordDao = recordDao;
         this.attendanceDao = attendanceDao;
     }
@@ -46,16 +50,12 @@ public class AcademicService {
         return subjectDao.findAll();
     }
 
-    public List<Subject> subjectsOfGrade(int grade) {
-        return subjectDao.findByGrade(grade);
-    }
-
-    public int createSubject(String name, int grade) {
-        return subjectDao.insert(name, grade);
+    public int createSubject(String code, String name, int gradeLevel) {
+        return subjectDao.insert(code, name, gradeLevel);
     }
 
     public Subject getSubject(int id) {
-        return subjectDao.findById(id).orElseThrow(() -> new BusinessRuleException("Materia " + id + " no encontrado."));
+        return subjectDao.findById(id).orElseThrow(() -> new BusinessRuleException("Materia " + id + " no encontrada."));
     }
 
     private Student getActiveStudent(int studentId) {
@@ -64,28 +64,34 @@ public class AcademicService {
         if (!"Activo".equals(student.status())) {
             throw new BusinessRuleException("El estudiante no esta activo (estado: " + student.status() + ").");
         }
+        if (student.grade() < 0) {
+            throw new BusinessRuleException("El estudiante no tiene matricula en ningun grado.");
+        }
         return student;
     }
 
-    public void enroll(int studentId, int subjectId, int year) {
+    public void enroll(int studentId, int subjectId, int year, String period) {
         Student student = getActiveStudent(studentId);
         Subject subject = getSubject(subjectId);
+        if (!Catalog.ENROLLMENT_PERIODS.contains(period)) {
+            throw new BusinessRuleException("Periodo invalido para inscripcion: " + period);
+        }
         if (subject.grade() != student.grade()) {
-            throw new BusinessRuleException("The subject belongs to grade " + subject.grade() + " but the student is in grade " + student.grade() + ".");
+            throw new BusinessRuleException("La materia es de grado " + subject.grade() + " y el estudiante esta en " + student.gradeLabel() + ".");
         }
-        if (subjectDao.isEnrolled(studentId, subjectId, year)) {
-            throw new BusinessRuleException("El estudiante ya esta inscrito en esa materia para " + year + ".");
+        if (subjectDao.isEnrolledInPeriod(studentId, subjectId, year, period)) {
+            throw new BusinessRuleException("El estudiante ya esta inscrito en esa materia para el periodo " + period + " de " + year + ".");
         }
-        subjectDao.enroll(studentId, subjectId, year);
+        subjectDao.enroll(studentId, subjectId, year, period);
     }
 
-    /** Enrolls the student in every subject of their grade that they do not have yet. Returns how many were added. */
-    public int enrollAllOfGrade(int studentId, int year) {
+    /** Enrolls the student in every subject of their grade for the period. Returns how many were added. */
+    public int enrollAllOfGrade(int studentId, int year, String period) {
         Student student = getActiveStudent(studentId);
         List<Subject> pending = subjectDao.findByGrade(student.grade()).stream()
-                .filter(s -> !subjectDao.isEnrolled(studentId, s.id(), year))
+                .filter(s -> !subjectDao.isEnrolledInPeriod(studentId, s.id(), year, period))
                 .toList();
-        pending.forEach(s -> subjectDao.enroll(studentId, s.id(), year));
+        pending.forEach(s -> subjectDao.enroll(studentId, s.id(), year, period));
         return pending.size();
     }
 
@@ -99,17 +105,18 @@ public class AcademicService {
 
     // ---------- grades ----------
 
-    public void recordGrade(int studentId, int subjectId, String period, int year, BigDecimal grade) {
+    public void recordGrade(int studentId, int subjectId, int teacherId, String period, int year, BigDecimal grade) {
         if (!Catalog.PERIODS.contains(period)) {
             throw new BusinessRuleException("Periodo invalido: " + period);
         }
         if (grade.compareTo(BigDecimal.ZERO) < 0 || grade.compareTo(new BigDecimal("5.0")) > 0 || grade.scale() > 1) {
             throw new BusinessRuleException("La nota debe estar entre 0.0 y 5.0 con un decimal.");
         }
+        teacherDao.findById(teacherId).orElseThrow(() -> new BusinessRuleException("Profesor " + teacherId + " no encontrado."));
         if (!subjectDao.isEnrolled(studentId, subjectId, year)) {
             throw new BusinessRuleException("El estudiante no esta inscrito en esa materia para " + year + ".");
         }
-        recordDao.save(studentId, subjectId, period, year, grade);
+        recordDao.save(studentId, subjectId, teacherId, period, year, grade);
     }
 
     public List<AcademicRecord> history(int studentId) {

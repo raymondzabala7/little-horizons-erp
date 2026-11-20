@@ -1,13 +1,15 @@
 package com.littlehorizons.erp.view;
 
+import com.littlehorizons.erp.model.PersonName;
 import com.littlehorizons.erp.util.InputValidator;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-/** Shared console rendering helpers used by every view. */
+/** Shared console rendering and prompting helpers used by every view. */
 public class ConsoleView {
 
     public void banner(String title, String subtitle) {
@@ -56,7 +58,7 @@ public class ConsoleView {
         }
         System.out.println();
         printRow(headers, widths);
-        System.out.println("  " + "-".repeat(java.util.Arrays.stream(widths).sum() + 3 * (widths.length - 1)));
+        System.out.println("  " + "-".repeat(Arrays.stream(widths).sum() + 3 * (widths.length - 1)));
         rows.forEach(r -> printRow(r, widths));
         System.out.println("\n  " + rows.size() + " registro(s).");
     }
@@ -70,6 +72,15 @@ public class ConsoleView {
             }
         }
         System.out.println(sb);
+    }
+
+    /** Asks for the four parts of a Colombian name; middle and second last name are optional. */
+    protected PersonName promptName() {
+        String first = InputValidator.readText("Primer nombre: ", 100);
+        String middle = InputValidator.readOptionalText("Segundo nombre (ENTER si no tiene): ", 100);
+        String last = InputValidator.readText("Primer apellido: ", 100);
+        String secondLast = InputValidator.readOptionalText("Segundo apellido (ENTER si no tiene): ", 100);
+        return new PersonName(first, middle, last, secondLast);
     }
 
     protected static List<String> row(Object... cells) {

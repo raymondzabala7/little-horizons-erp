@@ -36,13 +36,17 @@ public class ResourceService {
         return resourceDao.findAll().stream().filter(r -> "Disponible".equals(r.status())).toList();
     }
 
+    public List<String> categories() {
+        return resourceDao.findCategories();
+    }
+
     public Resource getByCode(String code) {
         return resourceDao.findByCode(code.toUpperCase())
                 .orElseThrow(() -> new BusinessRuleException("No existe un recurso con codigo " + code + "."));
     }
 
     public int register(String code, String name, String category, String location) {
-        if (!Catalog.RESOURCE_CATEGORIES.contains(category)) {
+        if (!resourceDao.findCategories().contains(category)) {
             throw new BusinessRuleException("Categoria invalida: " + category);
         }
         if (resourceDao.findByCode(code.toUpperCase()).isPresent()) {

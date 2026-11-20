@@ -5,7 +5,9 @@ import com.littlehorizons.erp.dao.StudentDao;
 import com.littlehorizons.erp.exception.BusinessRuleException;
 import com.littlehorizons.erp.model.Catalog;
 import com.littlehorizons.erp.model.Guardian;
+import com.littlehorizons.erp.model.GuardianForm;
 import com.littlehorizons.erp.model.Student;
+import com.littlehorizons.erp.model.StudentForm;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,24 +23,22 @@ public class StudentService {
         this.guardianDao = guardianDao;
     }
 
-    public int registerGuardian(Guardian guardian) {
-        if (guardianDao.findByDocument(guardian.documentId()).isPresent()) {
-            throw new BusinessRuleException("Ya existe un acudiente con documento " + guardian.documentId() + ".");
+    public int registerGuardian(GuardianForm form) {
+        if (guardianDao.findByDocument(form.documentId()).isPresent()) {
+            throw new BusinessRuleException("Ya existe un acudiente con documento " + form.documentId() + ".");
         }
-        return guardianDao.insert(guardian);
+        return guardianDao.insert(form);
     }
 
-    public int registerStudent(Student student) {
-        if (studentDao.findByDocument(student.documentId()).isPresent()) {
-            throw new BusinessRuleException("Ya existe un estudiante con documento " + student.documentId() + ".");
+    public int registerStudent(StudentForm form) {
+        if (studentDao.findByDocument(form.documentId()).isPresent()) {
+            throw new BusinessRuleException("Ya existe un estudiante con documento " + form.documentId() + ".");
         }
-        if (guardianDao.findById(student.guardianId()).isEmpty()) {
-            throw new BusinessRuleException("El acudiente " + student.guardianId() + " no existe. Registrelo primero.");
-        }
-        if (!student.birthDate().isBefore(LocalDate.now())) {
+        getGuardian(form.guardianId());
+        if (!form.birthDate().isBefore(LocalDate.now())) {
             throw new BusinessRuleException("La fecha de nacimiento debe ser anterior a hoy.");
         }
-        return studentDao.insert(student);
+        return studentDao.insert(form);
     }
 
     public List<Student> listStudents() {
@@ -55,6 +55,11 @@ public class StudentService {
 
     public Guardian getGuardian(int id) {
         return guardianDao.findById(id).orElseThrow(() -> new BusinessRuleException("Acudiente " + id + " no encontrado."));
+    }
+
+    public Guardian principalGuardianOf(int studentId) {
+        return guardianDao.findPrincipalOfStudent(studentId)
+                .orElseThrow(() -> new BusinessRuleException("El estudiante no tiene acudiente asociado."));
     }
 
     public List<Guardian> listGuardians() {

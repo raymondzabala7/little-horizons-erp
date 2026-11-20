@@ -19,8 +19,8 @@ public class AcademicView extends ConsoleView {
     }
 
     public void showSubjects(List<Subject> subjects) {
-        table(List.of("ID", "Materia", "Grado"),
-                subjects.stream().map(s -> row(s.id(), s.name(), s.grade() == 0 ? "Preescolar" : s.grade() + "°")).toList());
+        table(List.of("ID", "Codigo", "Materia", "Grado"),
+                subjects.stream().map(s -> row(s.id(), s.code(), s.name(), s.grade() == 0 ? "Preescolar" : s.grade() + "°")).toList());
     }
 
     public void showHistory(List<AcademicRecord> records) {
